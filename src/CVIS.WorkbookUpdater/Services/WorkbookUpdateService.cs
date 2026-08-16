@@ -6,6 +6,18 @@ namespace CVIS.WorkbookUpdater.Services;
 
 public sealed class WorkbookUpdateService
 {
+    private readonly IWorkbookSourceProvider _sourceProvider;
+
+    public WorkbookUpdateService()
+        : this(new WorkbookSourceProvider())
+    {
+    }
+
+    public WorkbookUpdateService(IWorkbookSourceProvider sourceProvider)
+    {
+        _sourceProvider = sourceProvider;
+    }
+
     private static readonly string[] DataIntakeHeaders =
     [
         "Intake ID", "Submitted Date", "Submitted By", "Update Type", "Target Table",
@@ -40,17 +52,21 @@ public sealed class WorkbookUpdateService
             return 0;
         }
 
-        if (IsFileLocked(workbookPath))
+        using var source = _sourceProvider.Open(workbookPath, writable: !dryRun);
+        var localPath = source.LocalPath;
+        if (IsFileLocked(localPath))
         {
             throw new IOException("The workbook is open or locked. Close it in Excel, wait for OneDrive sync, then retry.");
         }
 
-        using var workbook = WorkbookCompatibilityService.Open(workbookPath);
+        using var workbook = WorkbookCompatibilityService.Open(localPath);
         AppendRows(workbook, updates, includeChangeLog: true);
 
         if (!dryRun)
         {
-            SaveAtomically(workbook, workbookPath);
+            var backupPath = SaveAtomically(workbook, localPath);
+            _ = source.PreserveBackup(backupPath);
+            source.Commit();
         }
 
         return updates.Count;
@@ -60,7 +76,8 @@ public sealed class WorkbookUpdateService
         string workbookPath,
         IReadOnlyList<IntakeUpdate> updates)
     {
-        using var workbook = WorkbookCompatibilityService.Open(workbookPath);
+        using var source = _sourceProvider.Open(workbookPath, writable: false);
+        using var workbook = WorkbookCompatibilityService.Open(source.LocalPath);
         var overlapping = updates
             .GroupBy(UpdateIdentity, StringComparer.OrdinalIgnoreCase)
             .Where(group => group.Select(update => update.NewValue.Trim()).Distinct(StringComparer.OrdinalIgnoreCase).Count() > 1)
@@ -80,12 +97,14 @@ public sealed class WorkbookUpdateService
             return new WorkbookSaveResult();
         }
 
-        if (IsFileLocked(workbookPath))
+        using var source = _sourceProvider.Open(workbookPath, writable: true);
+        var localPath = source.LocalPath;
+        if (IsFileLocked(localPath))
         {
             throw new IOException("The workbook is open or locked. Close it in Excel, wait for OneDrive sync, then retry.");
         }
 
-        using var workbook = WorkbookCompatibilityService.Open(workbookPath);
+        using var workbook = WorkbookCompatibilityService.Open(localPath);
         var overlapping = updates
             .GroupBy(UpdateIdentity, StringComparer.OrdinalIgnoreCase)
             .Where(group => group.Select(update => update.NewValue.Trim()).Distinct(StringComparer.OrdinalIgnoreCase).Count() > 1)
@@ -117,13 +136,16 @@ public sealed class WorkbookUpdateService
         }
 
         AppendRows(workbook, updates, includeChangeLog: false);
-        var backupPath = SaveAtomically(workbook, workbookPath);
-        return new WorkbookSaveResult { UpdateCount = updates.Count, BackupPath = backupPath };
+        var backupPath = SaveAtomically(workbook, localPath);
+        var preservedBackupPath = source.PreserveBackup(backupPath);
+        source.Commit();
+        return new WorkbookSaveResult { UpdateCount = updates.Count, BackupPath = preservedBackupPath };
     }
 
     public IReadOnlyList<MappingRow> ReadMappings(string workbookPath)
     {
-        using var workbook = WorkbookCompatibilityService.Open(workbookPath);
+        using var source = _sourceProvider.Open(workbookPath, writable: false);
+        using var workbook = WorkbookCompatibilityService.Open(source.LocalPath);
         if (!workbook.TryGetWorksheet("Import Mapping", out var sheet))
         {
             return Array.Empty<MappingRow>();

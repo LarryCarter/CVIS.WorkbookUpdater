@@ -72,11 +72,11 @@ Example profile:
 - Preview before applying. Conflicting overlapping changes and blank-over-nonblank changes are blocked.
 - Every successful save creates a timestamped recovery copy in `.cvis-backups` beside the workbook.
 
-## OneDrive and SharePoint
+## Shared workbook URLs
 
-Use the local path from the OneDrive sync client. This preserves OneDrive upload/versioning behavior while allowing the application to use file locks, backups, and atomic replacement. Wait for OneDrive to report that the file is synchronized before and after a save.
+The workbook field accepts a local path, a synchronized path, or a direct `http://`/`https://` workbook URL. URL reads use the current Windows credentials, follow redirects, reject HTML sharing/sign-in pages, and download the `.xlsx` into an isolated working directory. Applying an update sends the verified workbook back with HTTP `PUT` and an `If-Match` ETag when the server supplied one, preventing an unseen newer version from being overwritten.
 
-Direct `https://` OneDrive or SharePoint links are intentionally rejected in this version. Writing through a link requires Microsoft Graph authentication, tenant app registration, and approved delegated permissions. The application does not collect or embed those credentials.
+The endpoint must expose workbook bytes on `GET` and permit replacement on `PUT`, such as an authenticated WebDAV or direct file endpoint. Browser landing pages and download-only sharing links cannot be updated in place; use a writable direct endpoint or a locally synchronized path in that case. This transport does not require Jira, Microsoft Graph, or SharePoint API integration.
 
 ## Update Workflows
 
@@ -85,6 +85,4 @@ Direct `https://` OneDrive or SharePoint links are intentionally rejected in thi
 - **Blocker / Risk**: update `Current RYG`, `Reason`, `Action Plan`, `Leadership Ask`, and `Next Action Date` together. Red and Yellow require an explanation and recovery action.
 - **Ticket / Work**: update status and next action on `Action Plan`, `Delivery Tasks`, `Dev Tasks`, `NFRs`, `Platform Onboarding`, or an editable target.
 
-## Next Phase
-
-If true live coauthoring without the OneDrive sync client is required, add a Microsoft Graph adapter or use a SharePoint List as the backing data source. That requires tenant app registration, authentication, and permission approval.
+For remote endpoints, the application preserves the downloaded pre-update workbook under `%LOCALAPPDATA%\CVIS.WorkbookUpdater\RemoteBackups` before uploading the replacement.

@@ -303,16 +303,12 @@ public partial class MainWindow : Window
 
     private void RequireWorkbookPath()
     {
-        if (Uri.TryCreate(WorkbookPathTextBox.Text, UriKind.Absolute, out var uri)
-            && (uri.Scheme == Uri.UriSchemeHttps || uri.Scheme == Uri.UriSchemeHttp))
+        var value = WorkbookPathTextBox.Text.Trim();
+        var isHttpUrl = Uri.TryCreate(value, UriKind.Absolute, out var uri)
+            && (uri.Scheme == Uri.UriSchemeHttps || uri.Scheme == Uri.UriSchemeHttp);
+        if (string.IsNullOrWhiteSpace(value) || (!isHttpUrl && !File.Exists(value)))
         {
-            throw new InvalidOperationException(
-                "Direct OneDrive/SharePoint URLs require Microsoft Graph authentication. Select the locally synced OneDrive .xlsx path for this version.");
-        }
-
-        if (string.IsNullOrWhiteSpace(WorkbookPathTextBox.Text) || !File.Exists(WorkbookPathTextBox.Text))
-        {
-            throw new InvalidOperationException("Select the CVIS recovery workbook first.");
+            throw new InvalidOperationException("Enter a direct workbook URL or select the CVIS recovery workbook first.");
         }
     }
 

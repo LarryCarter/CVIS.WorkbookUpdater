@@ -13,7 +13,7 @@
 
         <StackPanel Grid.Row="0" Margin="0,0,0,12">
             <TextBlock Text="CVIS Workbook Updater" FontSize="24" FontWeight="SemiBold"/>
-            <TextBlock Text="Preview, stage, and safely apply mapped updates. Synced OneDrive paths are supported; close desktop Excel before saving." Foreground="#555"/>
+            <TextBlock Text="Preview, stage, and safely apply mapped updates from a local path, synced path, or writable direct workbook URL." Foreground="#555"/>
         </StackPanel>
 
         <Grid Grid.Row="1" Margin="0,0,0,12">
