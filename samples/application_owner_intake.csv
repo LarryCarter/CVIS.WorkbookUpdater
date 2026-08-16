@@ -1,3 +1,3 @@
-Application / Component,Owner,Phase,Status,Known blockers
-AccountCheck,Larry Carter,Phase 1,Yellow,Need app owner confirmation
-eSARMoveAccounts,TBD,Phase 1,Yellow,Needs complexity review
+application_name,app_id,business_function,primary_users,classification,complexity,disposition,phase,owner,blockers
+AccountCheck,APP-001,Validate account state,CVIS Operations,Internal Support,Medium,Refactor,Phase 1,Larry Carter,Need app owner confirmation
+eSARMoveAccounts,APP-002,Move eSAR accounts,CVIS Operations,Internal Support,Unknown,Assess First,Phase 1,TBD,Needs complexity review

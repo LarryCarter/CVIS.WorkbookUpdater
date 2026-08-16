@@ -1,11 +1,21 @@
 records:
-  - Application / Component: AccountCheck
-    Owner: Larry Carter
-    Phase: Phase 1
-    Status: Yellow
-    Known blockers: Need app owner confirmation
-  - Application / Component: eSARMoveAccounts
-    Owner: TBD
-    Phase: Phase 1
-    Status: Yellow
-    Known blockers: Needs complexity review
+  - application_name: AccountCheck
+    app_id: APP-001
+    business_function: Validate account state
+    primary_users: CVIS Operations
+    classification: Internal Support
+    complexity: Medium
+    disposition: Refactor
+    phase: Phase 1
+    owner: Larry Carter
+    blockers: Need app owner confirmation
+  - application_name: eSARMoveAccounts
+    app_id: APP-002
+    business_function: Move eSAR accounts
+    primary_users: CVIS Operations
+    classification: Internal Support
+    complexity: Unknown
+    disposition: Assess First
+    phase: Phase 1
+    owner: TBD
+    blockers: Needs complexity review

@@ -1,0 +1,25 @@
+name: build
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.204
+      - name: Restore
+        run: dotnet restore CVIS.WorkbookUpdater.sln
+      - name: Test
+        run: dotnet test CVIS.WorkbookUpdater.sln -c Release --no-restore --nologo
+      - name: Publish Windows application
+        run: dotnet publish src/CVIS.WorkbookUpdater/CVIS.WorkbookUpdater.csproj -c Release -r win-x64 --self-contained false -o artifacts/CVIS.WorkbookUpdater
+      - uses: actions/upload-artifact@v4
+        with:
+          name: CVIS.WorkbookUpdater-win-x64
+          path: artifacts/CVIS.WorkbookUpdater
