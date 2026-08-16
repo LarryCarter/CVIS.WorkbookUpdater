@@ -1,15 +1,19 @@
 # CVIS Workbook Updater
 
-This is a Windows WPF helper for the CVIS / Unity modernization recovery workbook.
+This is a Windows WPF helper for safely previewing, staging, and applying updates to the CVIS / Unity modernization recovery workbook.
 
 It is intentionally designed as a controlled intake tool:
 
 - Manual update form for one-off owner, date, RYG, blocker, or dependency updates.
+- Focused blocker/risk and ticket/work status forms.
 - Bulk CSV/YAML import.
 - Field mapping based on the workbook `Import Mapping` sheet.
-- Append-only writes to `Data Intake`.
-- Audit rows in `Change Log`.
+- Preview with current value, proposed value, target resolution, and conflict result.
+- Choice of staging updates in `Data Intake` or safely applying ready updates to source sheets.
+- Audit rows in `Change Log` with real old and new values.
+- Verified backups, atomic file replacement, and reopen verification.
 - Workbook lock detection before saving.
+- Compatibility repair for Excel inline validation lists that exceed 255 characters.
 
 ## Why It Works This Way
 
@@ -29,13 +33,17 @@ Requirements:
 
 - Windows
 - Visual Studio 2022
-- .NET 8 SDK
+- .NET 10 SDK (the repository pins SDK 10.0.204)
 
-Open `CVIS.WorkbookUpdater.sln`, restore NuGet packages, then run the app.
+Open `CVIS.WorkbookUpdater.sln`, restore NuGet packages, then run the app. Verify changes with:
+
+```powershell
+dotnet test CVIS.WorkbookUpdater.sln -c Release
+```
 
 Packages used:
 
-- ClosedXML for `.xlsx` updates
+- ClosedXML and the Open XML SDK for `.xlsx` updates and compatibility normalization
 - CsvHelper for CSV import
 - YamlDotNet for YAML import
 
@@ -43,7 +51,7 @@ Packages used:
 
 Mappings are read from the workbook `Import Mapping` sheet.
 
-Each mapping profile needs one row marked `Match Key? = Yes`. That source field identifies the record to update, such as `Application / Component`.
+Each mapping profile needs at least one row marked `Match Key? = Yes`. When multiple key rows exist, they are treated as ordered fallbacks. For example, `App ID` can be preferred while `Source Row` is used when an ID is unavailable.
 
 Example profile:
 
@@ -61,7 +69,22 @@ Example profile:
 - Treat `Data Intake` as the staging queue.
 - Treat `Change Log` as the audit trail.
 - Do not let the app write directly to dashboard cells.
+- Preview before applying. Conflicting overlapping changes and blank-over-nonblank changes are blocked.
+- Every successful save creates a timestamped recovery copy in `.cvis-backups` beside the workbook.
+
+## OneDrive and SharePoint
+
+Use the local path from the OneDrive sync client. This preserves OneDrive upload/versioning behavior while allowing the application to use file locks, backups, and atomic replacement. Wait for OneDrive to report that the file is synchronized before and after a save.
+
+Direct `https://` OneDrive or SharePoint links are intentionally rejected in this version. Writing through a link requires Microsoft Graph authentication, tenant app registration, and approved delegated permissions. The application does not collect or embed those credentials.
+
+## Update Workflows
+
+- **Manual Update**: enter any target sheet, record key, field, and value; stage it or apply it immediately after preview.
+- **Bulk Import**: select CSV/YAML and a workbook mapping profile; preview all resolved and blocked changes, then stage or apply.
+- **Blocker / Risk**: update `Current RYG`, `Reason`, `Action Plan`, `Leadership Ask`, and `Next Action Date` together. Red and Yellow require an explanation and recovery action.
+- **Ticket / Work**: update status and next action on `Action Plan`, `Delivery Tasks`, `Dev Tasks`, `NFRs`, `Platform Onboarding`, or an editable target.
 
 ## Next Phase
 
-If true live coauthoring from WPF is required, the next version should use Microsoft Graph / Excel workbook APIs or a SharePoint List as the backing data source. That requires tenant app registration, authentication, and permission approval.
+If true live coauthoring without the OneDrive sync client is required, add a Microsoft Graph adapter or use a SharePoint List as the backing data source. That requires tenant app registration, authentication, and permission approval.
