@@ -1,0 +1,126 @@
+<Window x:Class="CVIS.WorkbookUpdater.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="CVIS Workbook Updater" Height="760" Width="1080"
+        MinHeight="680" MinWidth="920">
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="180"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Margin="0,0,0,12">
+            <TextBlock Text="CVIS Workbook Updater" FontSize="24" FontWeight="SemiBold"/>
+            <TextBlock Text="Append team updates into Data Intake and Change Log. Close the workbook before applying changes." Foreground="#555"/>
+        </StackPanel>
+
+        <Grid Grid.Row="1" Margin="0,0,0,12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="120"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="120"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="Workbook" VerticalAlignment="Center"/>
+            <TextBox Grid.Column="1" x:Name="WorkbookPathTextBox" Margin="8,0"/>
+            <Button Grid.Column="2" Content="Browse..." Click="BrowseWorkbook_Click"/>
+        </Grid>
+
+        <TabControl Grid.Row="2">
+            <TabItem Header="Manual Update">
+                <Grid Margin="12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="180"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="180"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Submitted By" Margin="0,0,8,8"/>
+                    <TextBox Grid.Row="0" Grid.Column="1" x:Name="SubmittedByTextBox" Margin="0,0,16,8"/>
+                    <TextBlock Grid.Row="0" Grid.Column="2" Text="Update Type" Margin="0,0,8,8"/>
+                    <ComboBox Grid.Row="0" Grid.Column="3" x:Name="UpdateTypeComboBox" Margin="0,0,0,8">
+                        <ComboBoxItem Content="Manual Update" IsSelected="True"/>
+                        <ComboBoxItem Content="Owner Update"/>
+                        <ComboBoxItem Content="RYG / Risk Update"/>
+                        <ComboBoxItem Content="Date Update"/>
+                        <ComboBoxItem Content="Dependency Update"/>
+                        <ComboBoxItem Content="Application Inventory Update"/>
+                    </ComboBox>
+
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Target Table" Margin="0,0,8,8"/>
+                    <ComboBox Grid.Row="1" Grid.Column="1" x:Name="TargetTableComboBox" Margin="0,0,16,8">
+                        <ComboBoxItem Content="Application Inventory" IsSelected="True"/>
+                        <ComboBoxItem Content="At-Risk Register"/>
+                        <ComboBoxItem Content="Dependencies"/>
+                        <ComboBoxItem Content="Milestones"/>
+                        <ComboBoxItem Content="Action Plan"/>
+                        <ComboBoxItem Content="Platform Onboarding"/>
+                    </ComboBox>
+                    <TextBlock Grid.Row="1" Grid.Column="2" Text="Effective Date" Margin="0,0,8,8"/>
+                    <DatePicker Grid.Row="1" Grid.Column="3" x:Name="EffectiveDatePicker" Margin="0,0,0,8"/>
+
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Record Key Field" Margin="0,0,8,8"/>
+                    <TextBox Grid.Row="2" Grid.Column="1" x:Name="RecordKeyFieldTextBox" Text="Application / Component" Margin="0,0,16,8"/>
+                    <TextBlock Grid.Row="2" Grid.Column="2" Text="Record Key Value" Margin="0,0,8,8"/>
+                    <TextBox Grid.Row="2" Grid.Column="3" x:Name="RecordKeyValueTextBox" Margin="0,0,0,8"/>
+
+                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Field To Update" Margin="0,0,8,8"/>
+                    <TextBox Grid.Row="3" Grid.Column="1" x:Name="FieldToUpdateTextBox" Margin="0,0,16,8"/>
+                    <TextBlock Grid.Row="3" Grid.Column="2" Text="New Value" Margin="0,0,8,8"/>
+                    <TextBox Grid.Row="3" Grid.Column="3" x:Name="NewValueTextBox" Margin="0,0,0,8"/>
+
+                    <TextBlock Grid.Row="4" Grid.Column="0" Text="Notes" Margin="0,0,8,8"/>
+                    <TextBox Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="3" x:Name="NotesTextBox"
+                             Height="90" AcceptsReturn="True" TextWrapping="Wrap" Margin="0,0,0,8"/>
+
+                    <CheckBox Grid.Row="5" Grid.Column="1" x:Name="DryRunCheckBox" Content="Preview only; do not save workbook" Margin="0,0,16,8"/>
+                    <Button Grid.Row="8" Grid.Column="3" Content="Append Manual Update" Width="190" HorizontalAlignment="Right" Click="AppendManualUpdate_Click"/>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="Bulk Import">
+                <Grid Margin="12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="160"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="120"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Import File" VerticalAlignment="Center" Margin="0,0,8,8"/>
+                    <TextBox Grid.Row="0" Grid.Column="1" x:Name="ImportPathTextBox" Margin="0,0,8,8"/>
+                    <Button Grid.Row="0" Grid.Column="2" Content="Browse..." Click="BrowseImport_Click" Margin="0,0,0,8"/>
+
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Mapping Profile" VerticalAlignment="Center" Margin="0,0,8,8"/>
+                    <TextBox Grid.Row="1" Grid.Column="1" x:Name="MappingProfileTextBox" Text="ApplicationOwnerIntake" Margin="0,0,8,8"/>
+                    <Button Grid.Row="1" Grid.Column="2" Content="Load Mappings" Click="LoadMappings_Click" Margin="0,0,0,8"/>
+
+                    <TextBlock Grid.Row="2" Grid.Column="1" x:Name="MappingSummaryTextBlock" Foreground="#555" Margin="0,0,0,8"/>
+                    <Button Grid.Row="4" Grid.Column="2" Content="Import Updates" Click="ImportUpdates_Click"/>
+                </Grid>
+            </TabItem>
+        </TabControl>
+
+        <TextBox Grid.Row="3" x:Name="LogTextBox" Margin="0,12,0,0" IsReadOnly="True"
+                 VerticalScrollBarVisibility="Auto" TextWrapping="Wrap" FontFamily="Consolas"/>
+    </Grid>
+</Window>
